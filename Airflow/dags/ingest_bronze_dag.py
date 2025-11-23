@@ -5,7 +5,7 @@ from scripts.ingest_to_bronze import run_all_loads
 
 with DAG(
     dag_id="load_bronze_tables",
-    start_date=datetime(2025, 23, 11),
+    start_date=datetime(2025, 11, 23),
     schedule_interval="@daily",
     catchup=False,
     tags=["bronze", "dwh"],
