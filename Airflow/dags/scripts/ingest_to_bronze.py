@@ -1,69 +1,120 @@
+import os
 import pandas as pd
-from airflow.providers.microsoft.mssql.hooks.mssql import MsSqlHook
+import pymssql
 
 # ============================================================
-# 1. Connect to MS SQL DWH via Airflow Hook
+# GLOBAL PATH CONFIG
 # ============================================================
-def get_engine_from_airflow():
-    hook = MsSqlHook(mssql_conn_id="mssql_DWH")
-    return hook.get_sqlalchemy_engine()
-
+AIRFLOW_HOME = os.getenv("AIRFLOW_HOME", "/usr/local/airflow")
+FOLDER_DATASETS = os.path.join(AIRFLOW_HOME, "dags", "datasets")
 
 # ============================================================
-# 2. Insert DataFrame to Bronze Schema
+# DATABASE CONNECTION CONFIG
+# ============================================================
+DB_CONFIG = {
+    "server": "host.docker.internal\\SQLEXPRESS01",  # bisa juga 'localhost\\SQLEXPRESS'
+    "user": "airflow",
+    "password": "admin",
+    "database": "DWH",
+    "port": 1433  # default SQL Server port
+}
+
+# ============================================================
+# 1. Connect to SQL Server using pymssql
+# ============================================================
+def get_connection():
+    conn = pymssql.connect(**DB_CONFIG)
+    return conn
+
+# ============================================================
+# 2. Truncate table
+# ============================================================
+def truncate_table(table_name: str):
+    conn = get_connection()
+    try:
+        with conn.cursor() as cursor:
+            sql = f"TRUNCATE TABLE {table_name};"
+            cursor.execute(sql)
+        conn.commit()
+        print(f"[OK] Truncated {table_name}")
+    finally:
+        conn.close()
+
+# ============================================================
+# 3. Insert DataFrame to Bronze Schema
 # ============================================================
 def load_to_bronze(df: pd.DataFrame, table_name: str):
-    engine = get_engine_from_airflow()
-    df.to_sql(
-        name=table_name,
-        schema="bronze",
-        con=engine,
-        if_exists="append",
-        index=False
-    )
-    print(f"[OK] Loaded {len(df)} rows into bronze.{table_name}")
-
+    conn = get_connection()
+    try:
+        tuples = [tuple(x) for x in df.to_numpy()]
+        cols = ",".join(df.columns)
+        placeholders = ",".join(["%s"] * len(df.columns))
+        sql = f"INSERT INTO {table_name} ({cols}) VALUES ({placeholders})"
+        
+        with conn.cursor() as cursor:
+            cursor.executemany(sql, tuples)
+        conn.commit()
+        print(f"[OK] Loaded {len(df)} rows into {table_name}")
+    finally:
+        conn.close()
 
 # ============================================================
-# 3. Load from Excel
+# 4. Load from Excel
 # ============================================================
 def load_excel_transaction(path_excel: str):
-    df = pd.read_excel(path_excel)
-    load_to_bronze(df, "transaction_excel_raw")
-
+    df = pd.read_excel(path_excel, dtype=str)
+    load_to_bronze(df, "bronze.transaction_excel_raw")
 
 # ============================================================
-# 4. Load dari CSV
+# 5. Load from CSV
 # ============================================================
 def load_csv_transaction(path_csv: str):
-    df = pd.read_csv(path_csv)
-    load_to_bronze(df, "transaction_csv_raw")
-
+    df = pd.read_csv(path_csv, dtype=str)
+    load_to_bronze(df, "bronze.transaction_csv_raw")
 
 # ============================================================
-# 5. Load dari SQL Express ke Bronze
+# 6. Load from SQL Source (SQL Server)
 # ============================================================
 def load_from_sql_source(source_table: str, bronze_table: str):
-    engine = get_engine_from_airflow()
-    query = f"SELECT * FROM {source_table}"
-    df = pd.read_sql(query, engine)
-    load_to_bronze(df, bronze_table)
-
+    conn = get_connection()
+    try:
+        query = f"SELECT * FROM {source_table}"
+        df = pd.read_sql(query, conn)
+        load_to_bronze(df, bronze_table)
+    finally:
+        conn.close()
 
 # ============================================================
-# 6. Fungsi utama yg dipanggil Airflow DAG
+# 7. The main function
 # ============================================================
 def run_all_loads():
     print("=== START LOADING INTO BRONZE ===")
 
-    load_excel_transaction("/opt/airflow/dags/datasets/transaction_excel.xlsx")
-    load_csv_transaction("/opt/airflow/dags/datasets/transaction_excel.csv")
+    # --- FULL LOAD ---
+    for table in [
+        "bronze.transaction_excel_raw",
+        "bronze.transaction_csv_raw",
+        "bronze.transaction_db_raw",
+        "bronze.account_db_raw",
+        "bronze.customer_db_raw",
+        "bronze.branch_db_raw",
+        "bronze.city_db_raw",
+        "bronze.state_db_raw"
+    ]:
+        truncate_table(table)
 
-    load_from_sql_source("bank.transaction", "transaction_db_raw")
-    load_from_sql_source("bank.account", "account_db_raw")
-    load_from_sql_source("bank.customer", "customer_db_raw")
-    load_from_sql_source("bank.branch", "branch_db_raw")
-    load_from_sql_source("bank.city", "city_db_raw")
-    load_from_sql_source("bank.state", "state_db_raw")
+    # --- Load from Files ---
+    csv_path = os.path.join(FOLDER_DATASETS, "transaction_csv.csv")
+    excel_path = os.path.join(FOLDER_DATASETS, "transaction_excel.xlsx")
+    load_csv_transaction(csv_path)
+    load_excel_transaction(excel_path)
+
+    # --- Load from SQL Source ---
+    load_from_sql_source("sample.dbo.transaction_db", "bronze.transaction_db_raw")
+    load_from_sql_source("sample.dbo.account", "bronze.account_db_raw")
+    load_from_sql_source("sample.dbo.customer", "bronze.customer_db_raw")
+    load_from_sql_source("sample.dbo.branch", "bronze.branch_db_raw")
+    load_from_sql_source("sample.dbo.city", "bronze.city_db_raw")
+    load_from_sql_source("sample.dbo.state", "bronze.state_db_raw")
 
     print("=== LOADING COMPLETE ===")
