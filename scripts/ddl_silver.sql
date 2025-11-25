@@ -17,12 +17,12 @@ IF OBJECT_ID('silver.TransactionClean', 'U') IS NOT NULL
 GO
 
 CREATE TABLE silver.TransactionClean(
-    TransactionId      INT,
-    AccountId          INT,
+    TransactionID      INT,
+    AccountID          INT,
     TransactionDate    DATETIME2(0),
     Amount             INT,
     TransactionType    NVARCHAR(50),
-    BranchId           INT
+    BranchID           INT
 );
 GO
 
@@ -31,8 +31,8 @@ IF OBJECT_ID('silver.AccountClean', 'U') IS NOT NULL
 GO
 
 CREATE TABLE silver.AccountClean(
-    AccountId      INT,
-    CustomerId     INT,
+    AccountID      INT,
+    CustomerID     INT,
     AccountType    NVARCHAR(50),
     Balance        INT,
     DateOpened     DATETIME2(0),
@@ -45,10 +45,10 @@ IF OBJECT_ID('silver.CustomerClean', 'U') IS NOT NULL
 GO
 
 CREATE TABLE silver.CustomerClean(
-    CustomerId     INT,
+    CustomerID     INT,
     CustomerName   NVARCHAR(50),
     Address        NVARCHAR(50),
-    CityId         INT,
+    CityID         INT,
     Age            INT,
     Gender         NVARCHAR(50),
     Email          NVARCHAR(50)
@@ -60,7 +60,7 @@ IF OBJECT_ID('silver.BranchClean', 'U') IS NOT NULL
 GO
 
 CREATE TABLE silver.BranchClean(
-    BranchId       INT,
+    BranchID       INT,
     BranchName     NVARCHAR(50),
     BranchLocation NVARCHAR(50)
 );
@@ -71,9 +71,9 @@ IF OBJECT_ID('silver.CityClean', 'U') IS NOT NULL
 GO
 
 CREATE TABLE silver.CityClean(
-    CityId     INT,
+    CityID     INT,
     CityName   NVARCHAR(50),
-    StateId    INT
+    StateID    INT
 );
 GO
 
@@ -82,7 +82,7 @@ IF OBJECT_ID('silver.StateClean', 'U') IS NOT NULL
 GO
 
 CREATE TABLE silver.StateClean(
-    StateId     INT,
+    StateID     INT,
     StateName   NVARCHAR(50),
 );
 GO

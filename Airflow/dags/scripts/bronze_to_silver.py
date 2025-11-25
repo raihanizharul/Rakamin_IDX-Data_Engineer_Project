@@ -5,12 +5,6 @@ import time
 from datetime import datetime
 
 # ============================================================
-# GLOBAL PATH CONFIG
-# ============================================================
-AIRFLOW_HOME = os.getenv("AIRFLOW_HOME", "/usr/local/airflow")
-FOLDER_DATASETS = os.path.join(AIRFLOW_HOME, "dags", "datasets")
-
-# ============================================================
 # DATABASE CONNECTION CONFIG
 # ============================================================
 DB_CONFIG = {
@@ -19,72 +13,6 @@ DB_CONFIG = {
     "password": "admin",
     "database": "DWH",
     "port": 1433
-}
-
-COLUMN_MAPPINGS = {
-
-    # =============================================================================
-    # TRANSACTION (Bronze Excel/CSV/DB → Silver.TransactionClean)
-    # =============================================================================
-    "silver.TransactionClean": {
-        "transaction_id": "TransactionId",
-        "account_id": "AccountId",
-        "transaction_date": "TransactionDate",
-        "amount": "Amount",
-        "transaction_type": "TransactionType",
-        "branch_id": "BranchId"
-    },
-
-    # =============================================================================
-    # ACCOUNT (bronze.account_db_raw → silver.AccountClean)
-    # =============================================================================
-    "silver.AccountClean": {
-        "account_id": "AccountId",
-        "customer_id": "CustomerId",
-        "account_type": "AccountType",
-        "balance": "Balance",
-        "date_opened": "DateOpened",
-        "status": "Status"
-    },
-
-    # =============================================================================
-    # CUSTOMER (bronze.customer_db_raw → silver.CustomerClean)
-    # =============================================================================
-    "silver.CustomerClean": {
-        "customer_id": "CustomerId",
-        "customer_name": "CustomerName",
-        "address": "Address",
-        "city_id": "CityId",
-        "age": "Age",
-        "gender": "Gender",
-        "email": "Email"
-    },
-
-    # =============================================================================
-    # BRANCH (bronze.branch_db_raw → silver.BranchClean)
-    # =============================================================================
-    "silver.BranchClean": {
-        "branch_id": "BranchId",
-        "branch_name": "BranchName",
-        "branch_location": "BranchLocation"
-    },
-
-    # =============================================================================
-    # CITY (bronze.city_db_raw → silver.CityClean)
-    # =============================================================================
-    "silver.CityClean": {
-        "city_id": "CityId",
-        "city_name": "CityName",
-        "state_id": "StateId"
-    },
-
-    # =============================================================================
-    # STATE (bronze.state_db_raw → silver.StateClean)
-    # =============================================================================
-    "silver.StateClean": {
-        "state_id": "StateId",
-        "state_name": "StateName"
-    }
 }
 
 
@@ -142,60 +70,7 @@ def get_connection():
     return pymssql.connect(**DB_CONFIG)
 
 # ============================================================
-# 2. Truncate table
-# ============================================================
-@measure_time
-def truncate_table(table_name: str):
-    conn = None
-    try:
-        conn = get_connection()
-        with conn.cursor() as cursor:
-            cursor.execute(f"TRUNCATE TABLE {table_name};")
-        conn.commit()
-        print(f"[OK] Truncated {table_name}")
-    except Exception as e:
-        raise RuntimeError(f"Gagal truncate {table_name}: {str(e)}")
-    finally:
-        conn.close()
-
-# ============================================================
-# 3. Insert DataFrame to Bronze Schema
-# ============================================================
-def load_to_bronze(df: pd.DataFrame, table_name: str):
-    conn = None
-    try:
-        # --- APPLY MAPPING ---
-        if table_name in COLUMN_MAPPINGS:
-            mapping = COLUMN_MAPPINGS[table_name]
-
-            # Hanya rename kolom yang ada di mapping
-            df = df.rename(columns=mapping)
-
-            # Select hanya kolom yang ada di DB (mapping values)
-            df = df[list(mapping.values())]
-
-        conn = get_connection()
-
-        tuples = [tuple(x) for x in df.to_numpy()]
-        cols = ",".join(df.columns)
-        placeholders = ",".join(["%s"] * len(df.columns))
-        sql = f"INSERT INTO {table_name} ({cols}) VALUES ({placeholders})"
-
-        with conn.cursor() as cursor:
-            cursor.executemany(sql, tuples)
-
-        conn.commit()
-        print(f"[OK] Loaded {len(df)} rows into {table_name}")
-
-    except Exception as e:
-        raise RuntimeError(f"Gagal insert ke {table_name}: {str(e)}")
-
-    finally:
-        conn.close()
-
-
-# ============================================================
-# 4. Load Transaction Data
+# 2. Load Transaction Data
 # ============================================================
 @measure_time
 def load_clean_transaction():
@@ -222,7 +97,7 @@ def load_clean_transaction():
         
         insert_sql = """
             INSERT INTO silver.TransactionClean
-                (TransactionId, AccountId, TransactionDate, Amount, TransactionType, BranchId)
+                (TransactionID, AccountID, TransactionDate, Amount, TransactionType, BranchID)
             VALUES (%s, %s, %s, %s, %s, %s)
         """
 
@@ -250,7 +125,7 @@ def load_clean_transaction():
 
 
 # ============================================================
-# 5. Load Account Data
+# 3. Load Account Data
 # ============================================================
 @measure_time
 def load_clean_account():
@@ -274,7 +149,7 @@ def load_clean_account():
         # --- SQL Insert ---
         insert_sql = """
             INSERT INTO silver.AccountClean
-                (AccountId, CustomerId, AccountType, Balance, DateOpened, Status)
+                (AccountID, CustomerID, AccountType, Balance, DateOpened, Status)
             VALUES (%s, %s, %s, %s, %s, %s)
         """
 
@@ -302,7 +177,7 @@ def load_clean_account():
 
 
 # ============================================================
-# 5. Load Branch Data
+# 4. Load Branch Data
 # ============================================================
 @measure_time
 def load_clean_branch():
@@ -326,7 +201,7 @@ def load_clean_branch():
         # --- SQL Insert ---
         insert_sql = """
             INSERT INTO silver.BranchClean
-                (BranchId, BranchName, BranchLocation)
+                (BranchID, BranchName, BranchLocation)
             VALUES (%s, %s, %s)
         """
 
@@ -374,7 +249,7 @@ def load_clean_city():
         # --- SQL Insert ---
         insert_sql = """
             INSERT INTO silver.CityClean
-                (CityId, CityName, StateId)
+                (CityID, CityName, StateID)
             VALUES (%s, %s, %s)
         """
 
@@ -399,7 +274,7 @@ def load_clean_city():
         
 
 # ============================================================
-# 5. Load Customer Data
+# 6. Load Customer Data
 # ============================================================
 @measure_time
 def load_clean_customer():
@@ -423,7 +298,7 @@ def load_clean_customer():
         # --- SQL Insert ---
         insert_sql = """
             INSERT INTO silver.CustomerClean
-                (CustomerId, CustomerName, Address, CityId, Age, Gender, Email)
+                (CustomerID, CustomerName, Address, CityID, Age, Gender, Email)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
         """
 
@@ -452,7 +327,7 @@ def load_clean_customer():
 
 
 # ============================================================
-# 5. Load State Data
+# 7. Load State Data
 # ============================================================
 @measure_time
 def load_clean_state():
@@ -476,7 +351,7 @@ def load_clean_state():
         # --- SQL Insert ---
         insert_sql = """
             INSERT INTO silver.StateClean
-                (StateId, StateName)
+                (StateID, StateName)
             VALUES (%s, %s)
         """
 
@@ -497,77 +372,24 @@ def load_clean_state():
 
     finally:
         conn.close()
+        
 
 # ============================================================
-# 5. Load from SQL Source (SQL Server)
-# ============================================================
-@measure_time
-def load_from_sql_source(source_table: str, bronze_table: str):
-    conn = None
-    try:
-        conn = get_connection()
-        query = f"SELECT * FROM {source_table}"
-        df = pd.read_sql(query, conn)
-        load_to_bronze(df, bronze_table)
-    except Exception as e:
-        raise RuntimeError(f"Error load SQL Source {source_table}: {str(e)}")
-    finally:
-        conn.close()
-
-# ============================================================
-# 6. The main function
+# 8. The main function
 # ============================================================
 @measure_time
 def run_all_loads(**context):
     log_time("=== START LOADING INTO BRONZE ===")
 
     try:
-        
-        '''
-        # --- FULL LOAD ---
-        for table in [
-            "silver.TransactionClean",
-            "silver.AccountClean",
-            "silver.CustomerClean",
-            "silver.BranchClean",
-            "silver.CityClean",
-            "silver.StateClean"
-        ]:
-            truncate_table(table)
-        '''
-
-        '''
-            "bronze.transaction_excel_raw",
-            "bronze.transaction_csv_raw",
-            "bronze.transaction_db_raw",
-            "bronze.account_db_raw",
-            "bronze.customer_db_raw",
-            "bronze.branch_db_raw",
-            "bronze.city_db_raw",
-            "bronze.state_db_raw"
-            
-            "silver.TransactionClean",
-            "silver.AccountClean",
-            "silver.CustomerClean",
-            "silver.BranchClean",
-            "silver.CityClean",
-            "silver.StateClean"
-        '''
-        # --- Load from SQL Source ---
+        # --- Full Load from bronze to silver ---
         load_clean_transaction()
         load_clean_account()
         load_clean_branch()
         load_clean_city()
         load_clean_customer()
         load_clean_state()
-        '''
-        load_from_sql_source("bronze.account_db_raw", "silver.AccountClean")
-        load_from_sql_source("bronze.customer_db_raw", "silver.CustomerClean")
-        load_from_sql_source("bronze.branch_db_raw", "silver.BranchClean")
-        load_from_sql_source("bronze.city_db_raw", "silver.CityClean")
-        load_from_sql_source("bronze.state_db_raw", "silver.StateClean")
-        '''
-
+ 
     except Exception as e:
         log_time(f"FATAL ERROR in run_all_loads: {str(e)}")
         raise e
