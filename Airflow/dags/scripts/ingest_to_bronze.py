@@ -41,7 +41,6 @@ def measure_time(func):
 
         elif func.__name__ == "load_csv_transaction":
             file = os.path.basename(args[0])
-            # bronze table sudah fixed
             dwh = "bronze.transaction_csv_raw"
             label = f" (source={file} → dwh={dwh})"
 
@@ -54,7 +53,6 @@ def measure_time(func):
             table = args[0]
             label = f" (table={table})"
 
-        # run_all_loads → tidak pakai label
 
         log_time(f"START: {func.__name__}{label}")
 
