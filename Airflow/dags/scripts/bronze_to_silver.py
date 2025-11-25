@@ -214,6 +214,9 @@ def load_clean_transaction():
         # --- Hilangkan duplikat berdasarkan semua kolom ---
         df_clean = df_all.drop_duplicates()
 
+        # --- Sort by transaction_id ---
+        df_clean = df_clean.sort_values(by='transaction_id', ascending=True)
+        
         # --- Insert ke SILVER ---
         load_to_bronze(df_clean, "silver.TransactionClean")
 
