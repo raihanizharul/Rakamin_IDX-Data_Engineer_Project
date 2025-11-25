@@ -195,7 +195,7 @@ def load_to_bronze(df: pd.DataFrame, table_name: str):
 
 
 # ============================================================
-# 4. Load from SQL Source (SQL Server)
+# 4. Load Transaction Data
 # ============================================================
 @measure_time
 def load_clean_transaction():
@@ -249,6 +249,10 @@ def load_clean_transaction():
         conn.close()
 
 
+# ============================================================
+# 5. Load Account Data
+# ============================================================
+@measure_time
 def load_clean_account():
     conn = None
     try:
@@ -270,7 +274,7 @@ def load_clean_account():
         # --- SQL Insert ---
         insert_sql = """
             INSERT INTO silver.AccountClean
-                (AccountID, CustomerID, AccountType, Balance, DateOpened, Status)
+                (AccountId, CustomerId, AccountType, Balance, DateOpened, Status)
             VALUES (%s, %s, %s, %s, %s, %s)
         """
 
@@ -296,6 +300,203 @@ def load_clean_account():
     finally:
         conn.close()
 
+
+# ============================================================
+# 5. Load Branch Data
+# ============================================================
+@measure_time
+def load_clean_branch():
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        # --- Load account source data ---
+        df = pd.read_sql("SELECT * FROM bronze.branch_db_raw", conn)
+
+        # --- Handling Duplicates ---
+        df_clean = df.drop_duplicates()
+
+        # --- Sort by account_id ---
+        df_clean = df_clean.sort_values(by='branch_id', ascending=True)
+
+        # --- (Opsional) Truncate table silver ---
+        cursor.execute("TRUNCATE TABLE silver.BranchClean")
+
+        # --- SQL Insert ---
+        insert_sql = """
+            INSERT INTO silver.BranchClean
+                (BranchId, BranchName, BranchLocation)
+            VALUES (%s, %s, %s)
+        """
+
+        # --- Mapping dataframe → DB ---
+        data_to_insert = df_clean[[
+            "branch_id",
+            "branch_name",
+            "branch_location"
+        ]].values.tolist()
+
+        # --- Insert to Silver ---
+        cursor.executemany(insert_sql, data_to_insert)
+        conn.commit()
+
+        print(f"[OK] Loaded cleaned branch: {len(df_clean)} rows")
+
+    except Exception as e:
+        raise RuntimeError(f"Error in load_clean_branch: {str(e)}")
+
+    finally:
+        conn.close()
+        
+# ============================================================
+# 5. Load City Data
+# ============================================================
+@measure_time
+def load_clean_city():
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        # --- Load account source data ---
+        df = pd.read_sql("SELECT * FROM bronze.city_db_raw", conn)
+
+        # --- Handling Duplicates ---
+        df_clean = df.drop_duplicates()
+
+        # --- Sort by account_id ---
+        df_clean = df_clean.sort_values(by='city_id', ascending=True)
+
+        # --- (Opsional) Truncate table silver ---
+        cursor.execute("TRUNCATE TABLE silver.CityClean")
+
+        # --- SQL Insert ---
+        insert_sql = """
+            INSERT INTO silver.CityClean
+                (CityId, CityName, StateId)
+            VALUES (%s, %s, %s)
+        """
+
+        # --- Mapping dataframe → DB ---
+        data_to_insert = df_clean[[
+            "city_id",
+            "city_name",
+            "state_id"
+        ]].values.tolist()
+
+        # --- Insert to Silver ---
+        cursor.executemany(insert_sql, data_to_insert)
+        conn.commit()
+
+        print(f"[OK] Loaded cleaned city: {len(df_clean)} rows")
+
+    except Exception as e:
+        raise RuntimeError(f"Error in load_clean_city: {str(e)}")
+
+    finally:
+        conn.close()
+        
+
+# ============================================================
+# 5. Load Customer Data
+# ============================================================
+@measure_time
+def load_clean_customer():
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        # --- Load account source data ---
+        df = pd.read_sql("SELECT * FROM bronze.customer_db_raw", conn)
+
+        # --- Handling Duplicates ---
+        df_clean = df.drop_duplicates()
+
+        # --- Sort by account_id ---
+        df_clean = df_clean.sort_values(by='customer_id', ascending=True)
+
+        # --- (Opsional) Truncate table silver ---
+        cursor.execute("TRUNCATE TABLE silver.CustomerClean")
+
+        # --- SQL Insert ---
+        insert_sql = """
+            INSERT INTO silver.CustomerClean
+                (CustomerId, CustomerName, Address, CityId, Age, Gender, Email)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """
+
+        # --- Mapping dataframe → DB ---
+        data_to_insert = df_clean[[
+            "customer_id",
+            "customer_name",
+            "address",
+            "city_id",
+            "age",
+            "gender",
+            "email"
+        ]].values.tolist()
+
+        # --- Insert to Silver ---
+        cursor.executemany(insert_sql, data_to_insert)
+        conn.commit()
+
+        print(f"[OK] Loaded cleaned customer: {len(df_clean)} rows")
+
+    except Exception as e:
+        raise RuntimeError(f"Error in load_clean_customer: {str(e)}")
+
+    finally:
+        conn.close()
+
+
+# ============================================================
+# 5. Load State Data
+# ============================================================
+@measure_time
+def load_clean_state():
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        # --- Load account source data ---
+        df = pd.read_sql("SELECT * FROM bronze.state_db_raw", conn)
+
+        # --- Handling Duplicates ---
+        df_clean = df.drop_duplicates()
+
+        # --- Sort by account_id ---
+        df_clean = df_clean.sort_values(by='state_id', ascending=True)
+
+        # --- (Opsional) Truncate table silver ---
+        cursor.execute("TRUNCATE TABLE silver.StateClean")
+
+        # --- SQL Insert ---
+        insert_sql = """
+            INSERT INTO silver.StateClean
+                (StateId, StateName)
+            VALUES (%s, %s)
+        """
+
+        # --- Mapping dataframe → DB ---
+        data_to_insert = df_clean[[
+            "state_id",
+            "state_name"
+        ]].values.tolist()
+
+        # --- Insert to Silver ---
+        cursor.executemany(insert_sql, data_to_insert)
+        conn.commit()
+
+        print(f"[OK] Loaded cleaned state: {len(df_clean)} rows")
+
+    except Exception as e:
+        raise RuntimeError(f"Error in load_clean_stater: {str(e)}")
+
+    finally:
+        conn.close()
 
 # ============================================================
 # 5. Load from SQL Source (SQL Server)
@@ -355,7 +556,10 @@ def run_all_loads(**context):
         # --- Load from SQL Source ---
         load_clean_transaction()
         load_clean_account()
-        
+        load_clean_branch()
+        load_clean_city()
+        load_clean_customer()
+        load_clean_state()
         '''
         load_from_sql_source("bronze.account_db_raw", "silver.AccountClean")
         load_from_sql_source("bronze.customer_db_raw", "silver.CustomerClean")
