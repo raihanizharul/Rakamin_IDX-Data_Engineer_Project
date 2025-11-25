@@ -79,6 +79,7 @@ def get_connection():
 # ============================================================
 @measure_time
 def truncate_table(table_name: str):
+    conn = None
     try:
         conn = get_connection()
         with conn.cursor() as cursor:
@@ -94,6 +95,7 @@ def truncate_table(table_name: str):
 # 3. Insert DataFrame to Bronze Schema
 # ============================================================
 def load_to_bronze(df: pd.DataFrame, table_name: str):
+    conn = None
     try:
         conn = get_connection()
 
@@ -132,6 +134,9 @@ def load_excel_transaction(path_excel: str):
 def load_csv_transaction(path_csv: str):
     try:
         df = pd.read_csv(path_csv, dtype=str)
+        df['transaction_date'] = pd.to_datetime(df['transaction_date'], dayfirst=True)
+        df['transaction_date'] = df['transaction_date'].dt.strftime('%Y-%m-%d %H:%M:%S')
+
         load_to_bronze(df, "bronze.transaction_csv_raw")
     except Exception as e:
         raise RuntimeError(f"Error load CSV: {str(e)}")
@@ -141,6 +146,7 @@ def load_csv_transaction(path_csv: str):
 # ============================================================
 @measure_time
 def load_from_sql_source(source_table: str, bronze_table: str):
+    conn = None
     try:
         conn = get_connection()
         query = f"SELECT * FROM {source_table}"
@@ -176,8 +182,9 @@ def run_all_loads(**context):
         csv_path = os.path.join(FOLDER_DATASETS, "transaction_csv.csv")
         excel_path = os.path.join(FOLDER_DATASETS, "transaction_excel.xlsx")
 
-        load_csv_transaction(csv_path)
         load_excel_transaction(excel_path)
+        load_csv_transaction(csv_path)
+        
 
         # --- Load from SQL Source ---
         load_from_sql_source("sample.dbo.transaction_db", "bronze.transaction_db_raw")

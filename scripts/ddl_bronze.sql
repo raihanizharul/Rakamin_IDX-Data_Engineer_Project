@@ -24,12 +24,12 @@ IF OBJECT_ID('bronze.transaction_excel_raw', 'U') IS NOT NULL
 GO
 
 CREATE TABLE bronze.transaction_excel_raw (
-    transaction_id      NVARCHAR(50),
-    account_id          NVARCHAR(50),
-    transaction_date    NVARCHAR(50),
-    amount              NVARCHAR(50),
-    transaction_type    NVARCHAR(50),
-    branch_id           NVARCHAR(50)
+    transaction_id      INT NOT NULL,
+    account_id          INT,
+    transaction_date    DATETIME2(0),
+    amount              INT,
+    transaction_type    VARCHAR(50),
+    branch_id           INT
 );
 GO
 
@@ -42,12 +42,12 @@ IF OBJECT_ID('bronze.transaction_csv_raw', 'U') IS NOT NULL
 GO
 
 CREATE TABLE bronze.transaction_csv_raw (
-    transaction_id      NVARCHAR(50),
-    account_id          NVARCHAR(50),
-    transaction_date    NVARCHAR(50),
-    amount              NVARCHAR(50),
-    transaction_type    NVARCHAR(50),
-    branch_id           NVARCHAR(50)
+    transaction_id      INT NOT NULL,
+    account_id          INT,
+    transaction_date    DATETIME2(0),
+    amount              INT,
+    transaction_type    VARCHAR(50),
+    branch_id           INT
 );
 GO
 
@@ -64,7 +64,7 @@ CREATE TABLE bronze.transaction_db_raw (
     account_id          INT,
     transaction_date    DATETIME2(0),
     amount              INT,
-    transaction_type    NVARCHAR(50),
+    transaction_type    VARCHAR(50),
     branch_id           INT
 );
 GO
@@ -80,10 +80,10 @@ GO
 CREATE TABLE bronze.account_db_raw (
     account_id      INT NOT NULL,
     customer_id     INT,
-    account_type    NVARCHAR(50),
+    account_type    VARCHAR(10),
     balance         INT,
     date_opened     DATETIME2(0),
-    status          NVARCHAR(50)
+    status          VARCHAR(10)
 );
 GO
 
@@ -97,12 +97,12 @@ GO
 
 CREATE TABLE bronze.customer_db_raw (
     customer_id     INT NOT NULL,
-    customer_name   NVARCHAR(50),
-    address         NVARCHAR(50),
+    customer_name   VARCHAR(50),
+    address         VARCHAR(MAX),
     city_id         INT,
-    age             NVARCHAR(50),
-    gender          NVARCHAR(50),
-    email           NVARCHAR(50)
+    age             VARCHAR(3),
+    gender          VARCHAR(10),
+    email           VARCHAR(50)
 );
 GO
 
