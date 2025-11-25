@@ -239,6 +239,9 @@ def load_clean_city():
 
         # --- Handling Duplicates ---
         df_clean = df.drop_duplicates()
+        
+        # --- Data Cleaning: Uppercase for string columns ---
+        df_clean["city_name"] = df_clean["city_name"].str.upper()
 
         # --- Sort by account_id ---
         df_clean = df_clean.sort_values(by='city_id', ascending=True)
@@ -289,6 +292,11 @@ def load_clean_customer():
         # --- Handling Duplicates ---
         df_clean = df.drop_duplicates()
 
+        # --- Data Cleaning: Uppercase for string columns ---
+        df_clean["customer_name"] = df_clean["customer_name"].str.upper()
+        df_clean["address"] = df_clean["address"].str.upper()
+        df_clean["gender"] = df_clean["gender"].str.upper()
+        
         # --- Sort by account_id ---
         df_clean = df_clean.sort_values(by='customer_id', ascending=True)
 
@@ -341,6 +349,9 @@ def load_clean_state():
 
         # --- Handling Duplicates ---
         df_clean = df.drop_duplicates()
+        
+        # --- Data Cleaning: Uppercase for string columns ---
+        df_clean["state_name"] = df_clean["state_name"].str.upper()
 
         # --- Sort by account_id ---
         df_clean = df_clean.sort_values(by='state_id', ascending=True)
