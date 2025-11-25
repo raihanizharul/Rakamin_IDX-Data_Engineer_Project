@@ -202,28 +202,96 @@ def load_clean_transaction():
     conn = None
     try:
         conn = get_connection()
-
-        # --- Load 3 sumber Bronze ---
+        cursor = conn.cursor()
+        
+        # --- Load 3 transaction data sources ---
         df_excel = pd.read_sql("SELECT * FROM bronze.transaction_excel_raw", conn)
         df_csv = pd.read_sql("SELECT * FROM bronze.transaction_csv_raw", conn)
         df_db = pd.read_sql("SELECT * FROM bronze.transaction_db_raw", conn)
 
-        # --- Satukan semua data ---
+        # --- Merge all data ---
         df_all = pd.concat([df_excel, df_csv, df_db], ignore_index=True)
 
-        # --- Hilangkan duplikat berdasarkan semua kolom ---
+        # --- Handling Duplicates ---
         df_clean = df_all.drop_duplicates()
 
         # --- Sort by transaction_id ---
         df_clean = df_clean.sort_values(by='transaction_id', ascending=True)
         
-        # --- Insert ke SILVER ---
-        load_to_bronze(df_clean, "silver.TransactionClean")
+        cursor.execute("TRUNCATE TABLE silver.TransactionClean")
+        
+        insert_sql = """
+            INSERT INTO silver.TransactionClean
+                (TransactionId, AccountId, TransactionDate, Amount, TransactionType, BranchId)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """
+
+        # --- Mapping dataframe → DB ---
+        data_to_insert = df_clean[[
+            "transaction_id",
+            "account_id",
+            'transaction_date',
+            "amount",
+            "transaction_type",
+            "branch_id"
+        ]].values.tolist()
+
+        # --- Insert ke Silver ---
+        cursor.executemany(insert_sql, data_to_insert)
+        conn.commit()
 
         print(f"[OK] Loaded cleaned transaction: {len(df_clean)} rows")
 
     except Exception as e:
         raise RuntimeError(f"Error in load_clean_transaction: {str(e)}")
+
+    finally:
+        conn.close()
+
+
+def load_clean_account():
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        # --- Load account source data ---
+        df = pd.read_sql("SELECT * FROM bronze.account_db_raw", conn)
+
+        # --- Handling Duplicates ---
+        df_clean = df.drop_duplicates()
+
+        # --- Sort by account_id ---
+        df_clean = df_clean.sort_values(by='account_id', ascending=True)
+
+        # --- (Opsional) Truncate table silver ---
+        cursor.execute("TRUNCATE TABLE silver.AccountClean")
+
+        # --- SQL Insert ---
+        insert_sql = """
+            INSERT INTO silver.AccountClean
+                (AccountID, CustomerID, AccountType, Balance, DateOpened, Status)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """
+
+        # --- Mapping dataframe → DB ---
+        data_to_insert = df_clean[[
+            "account_id",
+            "customer_id",
+            "account_type",
+            "balance",
+            "date_opened",
+            "status"
+        ]].values.tolist()
+
+        # --- Insert to Silver ---
+        cursor.executemany(insert_sql, data_to_insert)
+        conn.commit()
+
+        print(f"[OK] Loaded cleaned account: {len(df_clean)} rows")
+
+    except Exception as e:
+        raise RuntimeError(f"Error in load_clean_account: {str(e)}")
 
     finally:
         conn.close()
@@ -253,6 +321,8 @@ def run_all_loads(**context):
     log_time("=== START LOADING INTO BRONZE ===")
 
     try:
+        
+        '''
         # --- FULL LOAD ---
         for table in [
             "silver.TransactionClean",
@@ -263,6 +333,7 @@ def run_all_loads(**context):
             "silver.StateClean"
         ]:
             truncate_table(table)
+        '''
 
         '''
             "bronze.transaction_excel_raw",
@@ -283,11 +354,15 @@ def run_all_loads(**context):
         '''
         # --- Load from SQL Source ---
         load_clean_transaction()
+        load_clean_account()
+        
+        '''
         load_from_sql_source("bronze.account_db_raw", "silver.AccountClean")
         load_from_sql_source("bronze.customer_db_raw", "silver.CustomerClean")
         load_from_sql_source("bronze.branch_db_raw", "silver.BranchClean")
         load_from_sql_source("bronze.city_db_raw", "silver.CityClean")
         load_from_sql_source("bronze.state_db_raw", "silver.StateClean")
+        '''
 
     except Exception as e:
         log_time(f"FATAL ERROR in run_all_loads: {str(e)}")
