@@ -11,8 +11,26 @@ Usage:
 ===============================================================================
 */
 
+/* ================================================================
+   DROP FOREIGN KEYS FIRST
+================================================================ */
+
 USE DWH;
 GO
+
+-- Fact FK ? DimAccount
+IF EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_FactTransaction_DimAccount')
+    ALTER TABLE gold.FactTransaction DROP CONSTRAINT FK_FactTransaction_DimAccount;
+
+-- Fact FK ? DimBranch
+IF EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_FactTransaction_DimBranch')
+    ALTER TABLE gold.FactTransaction DROP CONSTRAINT FK_FactTransaction_DimBranch;
+
+-- DimAccount FK ? DimCustomer
+IF EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_DimAccount_DimCustomer')
+    ALTER TABLE gold.DimAccount DROP CONSTRAINT FK_DimAccount_DimCustomer;
+GO
+
 
 -- =============================================================================
 -- Create Dimension: gold.DimBranch
