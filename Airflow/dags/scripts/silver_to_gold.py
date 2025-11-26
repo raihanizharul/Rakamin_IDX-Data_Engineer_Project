@@ -103,7 +103,7 @@ def load_dim_customer():
             .merge(df_state, on="StateID", how="left")
         ).drop_duplicates().sort_values("CustomerID")
 
-        # 🔥 WAJIB: disable FK in DimAccount → DimCustomer
+        # Disable FK in DimAccount → DimCustomer
         cursor.execute("""
             ALTER TABLE gold.DimAccount
             NOCHECK CONSTRAINT FK_DimAccount_DimCustomer;
