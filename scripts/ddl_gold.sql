@@ -23,10 +23,9 @@ IF OBJECT_ID('gold.DimBranch', 'U') IS NOT NULL
 GO
 
 CREATE TABLE gold.DimBranch (
-    BranchId        INT PRIMARY KEY,
-    
-    BranchName      NVARCHAR(50),
-    BranchLocation  NVARCHAR(50)
+    BranchID        INT PRIMARY KEY,
+    BranchName      VARCHAR(50),
+    BranchLocation  VARCHAR(50)
 );
 GO
 
@@ -41,14 +40,14 @@ IF OBJECT_ID('gold.DimCustomer', 'U') IS NOT NULL
 GO
 
 CREATE TABLE gold.DimCustomer (
-    CustomerId    INT PRIMARY KEY,
-    CustomerName  NVARCHAR(50), 
-    Address       NVARCHAR(50), 
-    CityName      NVARCHAR(50), 
-    StateName     NVARCHAR(50), 
-    Age           INT,
-    Gender        NVARCHAR(50), 
-    Email         NVARCHAR(50)
+    CustomerID    INT PRIMARY KEY,
+    CustomerName  VARCHAR(50), 
+    Address       VARCHAR(MAX), 
+    CityName      VARCHAR(50), 
+    StateName     VARCHAR(50), 
+    Age           VARCHAR(3),
+    Gender        VARCHAR(10), 
+    Email         VARCHAR(50)
 );
 GO
 
@@ -61,12 +60,12 @@ IF OBJECT_ID('gold.DimAccount', 'U') IS NOT NULL
 GO
 
 CREATE TABLE gold.DimAccount (
-    AccountId    INT  PRIMARY KEY,
-    CustomerId   INT,
-    AccountType  NVARCHAR(50),
+    AccountID    INT  PRIMARY KEY,
+    CustomerID   INT,
+    AccountType  VARCHAR(10),
     Balance      INT,
     DateOpened   DATETIME2(0),
-    Status       NVARCHAR(50)
+    Status       VARCHAR(10)
 
     -- Foreign Key Constraint ke DimCustomer
     CONSTRAINT FK_DimAccount_DimCustomer FOREIGN KEY (CustomerId) REFERENCES gold.DimCustomer(CustomerId)
@@ -82,12 +81,12 @@ IF OBJECT_ID('gold.FactTransaction', 'U') IS NOT NULL
 GO
 
 CREATE TABLE gold.FactTransaction (
-    TransactionId     INT PRIMARY KEY, 
-    AccountId         INT,
-    BranchId          INT,
+    TransactionID     INT PRIMARY KEY, 
+    AccountID         INT,
+    BranchID          INT,
     TransactionDate   DATETIME2(0),
     Amount            INT,
-    TransactionType   NVARCHAR(50),
+    TransactionType   VARCHAR(50),
     
     -- Foreign Key Constraints
     CONSTRAINT FK_FactTransaction_DimAccount FOREIGN KEY (AccountId) REFERENCES gold.DimAccount(AccountId),
