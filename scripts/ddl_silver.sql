@@ -17,11 +17,11 @@ IF OBJECT_ID('silver.TransactionClean', 'U') IS NOT NULL
 GO
 
 CREATE TABLE silver.TransactionClean(
-    TransactionID      INT,
+    TransactionID      INT NOT NULL,
     AccountID          INT,
     TransactionDate    DATETIME2(0),
     Amount             INT,
-    TransactionType    NVARCHAR(50),
+    TransactionType    VARCHAR(50),
     BranchID           INT
 );
 GO
@@ -31,12 +31,12 @@ IF OBJECT_ID('silver.AccountClean', 'U') IS NOT NULL
 GO
 
 CREATE TABLE silver.AccountClean(
-    AccountID      INT,
+    AccountID      INT NOT NULL,
     CustomerID     INT,
-    AccountType    NVARCHAR(50),
+    AccountType    VARCHAR(10),
     Balance        INT,
     DateOpened     DATETIME2(0),
-    Status         NVARCHAR(50)
+    Status         VARCHAR(10)
 );
 GO
 
@@ -45,13 +45,13 @@ IF OBJECT_ID('silver.CustomerClean', 'U') IS NOT NULL
 GO
 
 CREATE TABLE silver.CustomerClean(
-    CustomerID     INT,
-    CustomerName   NVARCHAR(50),
-    Address        NVARCHAR(50),
+    CustomerID     INT NOT NULL,
+    CustomerName   VARCHAR(50),
+    Address        VARCHAR(MAX),
     CityID         INT,
-    Age            INT,
-    Gender         NVARCHAR(50),
-    Email          NVARCHAR(50)
+    Age            VARCHAR(3),
+    Gender         VARCHAR(10),
+    Email          VARCHAR(50)
 );
 GO
 
@@ -60,9 +60,9 @@ IF OBJECT_ID('silver.BranchClean', 'U') IS NOT NULL
 GO
 
 CREATE TABLE silver.BranchClean(
-    BranchID       INT,
-    BranchName     NVARCHAR(50),
-    BranchLocation NVARCHAR(50)
+    BranchID       INT NOT NULL,
+    BranchName     VARCHAR(50),
+    BranchLocation VARCHAR(50)
 );
 GO
 
@@ -71,9 +71,9 @@ IF OBJECT_ID('silver.CityClean', 'U') IS NOT NULL
 GO
 
 CREATE TABLE silver.CityClean(
-    CityID     INT,
-    CityName   NVARCHAR(50),
-    StateID    INT
+    CityID     INT NOT NULL,
+    CityName   VARCHAR(50),
+    StateID    INT NOT NULL
 );
 GO
 
@@ -82,7 +82,7 @@ IF OBJECT_ID('silver.StateClean', 'U') IS NOT NULL
 GO
 
 CREATE TABLE silver.StateClean(
-    StateID     INT,
-    StateName   NVARCHAR(50),
+    StateID     INT NOT NULL,
+    StateName   VARCHAR(50),
 );
 GO

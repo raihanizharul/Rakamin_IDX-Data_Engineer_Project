@@ -116,8 +116,8 @@ GO
 
 CREATE TABLE bronze.branch_db_raw (
     branch_id       INT NOT NULL,
-    branch_name     NVARCHAR(50),
-    branch_location NVARCHAR(50)
+    branch_name     VARCHAR(50),
+    branch_location VARCHAR(50)
 );
 GO
 
@@ -131,8 +131,8 @@ GO
 
 CREATE TABLE bronze.city_db_raw (
     city_id     INT NOT NULL,
-    city_name   NVARCHAR(50),
-    state_id    INT
+    city_name   VARCHAR(50),
+    state_id    INT NOT NULL
 );
 GO
 
@@ -146,6 +146,6 @@ GO
 
 CREATE TABLE bronze.state_db_raw (
     state_id     INT NOT NULL,
-    state_name   NVARCHAR(50)
+    state_name   VARCHAR(50)
 );
 GO
