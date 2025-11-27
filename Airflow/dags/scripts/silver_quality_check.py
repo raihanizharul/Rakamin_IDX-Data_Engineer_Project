@@ -1,17 +1,7 @@
 import pandas as pd
-import pymssql
 from datetime import datetime
+from scripts.conn.db_connection import get_connection
 
-DB_CONFIG = {
-    "server": "host.docker.internal\\SQLEXPRESS01",
-    "user": "airflow",
-    "password": "admin",
-    "database": "DWH",
-    "port": 1433
-}
-
-def get_connection():
-    return pymssql.connect(**DB_CONFIG)
 
 def log(msg):
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {msg}")

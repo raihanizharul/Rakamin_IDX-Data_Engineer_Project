@@ -1,17 +1,7 @@
 import pandas as pd
-import pymssql
 from datetime import datetime
+from scripts.conn.db_connection import get_connection
 
-DB_CONFIG = {
-    "server": "host.docker.internal\\SQLEXPRESS01",
-    "user": "airflow",
-    "password": "admin",
-    "database": "DWH",
-    "port": 1433
-}
-
-def get_connection():
-    return pymssql.connect(**DB_CONFIG)
 
 def log(msg):
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {msg}")
@@ -96,7 +86,7 @@ def dq_check(table, pk_col, required_cols=[], uppercase_cols=[], fk_checks=[]):
 
 
 # ================================================================
-# MAIN: RUN DQ GOLD
+# RUN ALL TABLE CHECKS
 # ================================================================
 def run_data_quality_gold():
     log("=== START DATA QUALITY CHECK: GOLD ===")
@@ -104,7 +94,7 @@ def run_data_quality_gold():
     dq_results = {}
 
     # ----------------------------------------------------
-    # 1. DimBranch
+    # DimBranch
     # ----------------------------------------------------
     dq_results["DimBranch"] = dq_check(
         table="gold.DimBranch",
@@ -115,7 +105,7 @@ def run_data_quality_gold():
     )
 
     # ----------------------------------------------------
-    # 2. DimCustomer
+    # DimCustomer
     # ----------------------------------------------------
     dq_results["DimCustomer"] = dq_check(
         table="gold.DimCustomer",
@@ -126,7 +116,7 @@ def run_data_quality_gold():
     )
 
     # ----------------------------------------------------
-    # 3. DimAccount
+    # DimAccount
     # ----------------------------------------------------
     dq_results["DimAccount"] = dq_check(
         table="gold.DimAccount",
@@ -139,7 +129,7 @@ def run_data_quality_gold():
     )
 
     # ----------------------------------------------------
-    # 4. FactTransaction
+    # FactTransaction
     # ----------------------------------------------------
     dq_results["FactTransaction"] = dq_check(
         table="gold.FactTransaction",
@@ -156,7 +146,9 @@ def run_data_quality_gold():
     return dq_results
 
 
-# RUN MANUAL
+# ================================================================
+# RUN QUALITY CHECK  
+# ================================================================
 if __name__ == "__main__":
     results = run_data_quality_gold()
     print("\n=== FINAL GOLD DQ REPORT ===")

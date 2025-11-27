@@ -1,25 +1,14 @@
 import os
 import pandas as pd
-import pymssql
 import time
 from datetime import datetime
+from scripts.conn.db_connection import get_connection
 
 # ============================================================
 # GLOBAL PATH CONFIG
 # ============================================================
 AIRFLOW_HOME = os.getenv("AIRFLOW_HOME", "/usr/local/airflow")
 FOLDER_DATASETS = os.path.join(AIRFLOW_HOME, "dags", "datasets")
-
-# ============================================================
-# DATABASE CONNECTION CONFIG
-# ============================================================
-DB_CONFIG = {
-    "server": "host.docker.internal\\SQLEXPRESS01",
-    "user": "airflow",
-    "password": "admin",
-    "database": "DWH",
-    "port": 1433
-}
 
 # ============================================================
 # Utility for timing
@@ -67,15 +56,8 @@ def measure_time(func):
 
     return wrapper
 
-
 # ============================================================
-# 1. Connect to SQL Server using pymssql
-# ============================================================
-def get_connection():
-    return pymssql.connect(**DB_CONFIG)
-
-# ============================================================
-# 2. Truncate table
+# Truncate table
 # ============================================================
 @measure_time
 def truncate_table(table_name: str):
@@ -92,7 +74,7 @@ def truncate_table(table_name: str):
         conn.close()
 
 # ============================================================
-# 3. Insert DataFrame to Bronze Schema
+# Insert DataFrame to Bronze Schema
 # ============================================================
 def load_to_bronze(df: pd.DataFrame, table_name: str):
     conn = None
@@ -117,7 +99,7 @@ def load_to_bronze(df: pd.DataFrame, table_name: str):
         conn.close()
 
 # ============================================================
-# 4. Load from Excel
+# Load from Excel
 # ============================================================
 @measure_time
 def load_excel_transaction(path_excel: str):
@@ -128,7 +110,7 @@ def load_excel_transaction(path_excel: str):
         raise RuntimeError(f"Error load Excel: {str(e)}")
 
 # ============================================================
-# 5. Load from CSV
+# Load from CSV
 # ============================================================
 @measure_time
 def load_csv_transaction(path_csv: str):
@@ -142,7 +124,7 @@ def load_csv_transaction(path_csv: str):
         raise RuntimeError(f"Error load CSV: {str(e)}")
 
 # ============================================================
-# 6. Load from SQL Source (SQL Server)
+# Load from SQL Source (SQL Server)
 # ============================================================
 @measure_time
 def load_from_sql_source(source_table: str, bronze_table: str):
@@ -158,7 +140,7 @@ def load_from_sql_source(source_table: str, bronze_table: str):
         conn.close()
 
 # ============================================================
-# 7. The main function
+# The main function
 # ============================================================
 @measure_time
 def run_all_loads_bronze(**context):

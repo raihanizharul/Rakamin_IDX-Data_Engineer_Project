@@ -1,20 +1,8 @@
 import os
 import pandas as pd
-import pymssql
 import time
 from datetime import datetime
-
-# ============================================================
-# DATABASE CONNECTION CONFIG
-# ============================================================
-DB_CONFIG = {
-    "server": "host.docker.internal\\SQLEXPRESS01",
-    "user": "airflow",
-    "password": "admin",
-    "database": "DWH",
-    "port": 1433
-}
-
+from scripts.conn.db_connection import get_connection
 
 # ============================================================
 # Utility for timing
@@ -62,15 +50,8 @@ def measure_time(func):
 
     return wrapper
 
-
 # ============================================================
-# 1. Connect to SQL Server using pymssql
-# ============================================================
-def get_connection():
-    return pymssql.connect(**DB_CONFIG)
-
-# ============================================================
-# 2. Load Transaction Data
+# Load Transaction Data
 # ============================================================
 @measure_time
 def load_clean_transaction():
@@ -125,7 +106,7 @@ def load_clean_transaction():
 
 
 # ============================================================
-# 3. Load Account Data
+# Load Account Data
 # ============================================================
 @measure_time
 def load_clean_account():
@@ -177,7 +158,7 @@ def load_clean_account():
 
 
 # ============================================================
-# 4. Load Branch Data
+# Load Branch Data
 # ============================================================
 @measure_time
 def load_clean_branch():
@@ -225,7 +206,7 @@ def load_clean_branch():
         conn.close()
         
 # ============================================================
-# 5. Load City Data
+# Load City Data
 # ============================================================
 @measure_time
 def load_clean_city():
@@ -277,7 +258,7 @@ def load_clean_city():
         
 
 # ============================================================
-# 6. Load Customer Data
+# Load Customer Data
 # ============================================================
 @measure_time
 def load_clean_customer():
@@ -335,7 +316,7 @@ def load_clean_customer():
 
 
 # ============================================================
-# 7. Load State Data
+# Load State Data
 # ============================================================
 @measure_time
 def load_clean_state():
@@ -386,7 +367,7 @@ def load_clean_state():
         
 
 # ============================================================
-# 8. The main function
+# The main function
 # ============================================================
 @measure_time
 def run_all_loads_silver(**context):

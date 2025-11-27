@@ -1,19 +1,7 @@
-import os
 import pandas as pd
-import pymssql
 import time
 from datetime import datetime
-
-# ============================================================
-# DATABASE CONFIG
-# ============================================================
-DB_CONFIG = {
-    "server": "host.docker.internal\\SQLEXPRESS01",
-    "user": "airflow",
-    "password": "admin",
-    "database": "DWH",
-    "port": 1433
-}
+from scripts.conn.db_connection import get_connection
 
 # ============================================================
 # UTILITY FUNCTIONS
@@ -40,13 +28,7 @@ def measure_time(func):
     return wrapper
 
 # ============================================================
-# DB CONNECTION
-# ============================================================
-def get_connection():
-    return pymssql.connect(**DB_CONFIG)
-
-# ============================================================
-# 1. LOAD DIM BRANCH
+# LOAD DIM BRANCH
 # ============================================================
 @measure_time
 def load_dim_branch():
@@ -88,7 +70,7 @@ def load_dim_branch():
         conn.close()
 
 # ============================================================
-# 2. LOAD DIM CUSTOMER
+# LOAD DIM CUSTOMER
 # ============================================================
 @measure_time
 def load_dim_customer():
@@ -145,7 +127,7 @@ def load_dim_customer():
 
 
 # ============================================================
-# 3. LOAD DIM ACCOUNT
+# LOAD DIM ACCOUNT
 # ============================================================
 @measure_time
 def load_dim_account():
@@ -203,7 +185,7 @@ def load_dim_account():
         conn.close()
 
 # ============================================================
-# 4. LOAD FACT TRANSACTION
+# LOAD FACT TRANSACTION
 # ============================================================
 @measure_time
 def load_fact_transaction():
