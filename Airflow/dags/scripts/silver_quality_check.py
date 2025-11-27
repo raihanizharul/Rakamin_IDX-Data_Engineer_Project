@@ -75,7 +75,9 @@ def dq_check(table, pk_col, required_cols=[], uppercase_cols=[]):
     log(f"✓ Rows             : {results['row_count']}")
     log(f"✓ Null Values      : {results['nulls']}")
     log(f"✓ Duplicate PK     : {results['duplicate_pk']}")
-    log(f"✓ Uppercase Issues : {results['uppercase_issues']}")
+    if uppercase_cols:
+        log(f"✓ Uppercase Issues : {results['uppercase_issues']}")
+
 
     return results
 
