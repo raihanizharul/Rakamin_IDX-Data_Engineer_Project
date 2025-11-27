@@ -1,15 +1,13 @@
 import os
 import pandas as pd
 import time
-from datetime import datetime
 from scripts.conn.db_connection import get_connection
 
 # ============================================================
 # Utility for timing
 # ============================================================
 def log_time(message: str):
-    ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print(f"[{ts}] {message}")
+    print(message)
 
 def measure_time(func):
     def wrapper(*args, **kwargs):

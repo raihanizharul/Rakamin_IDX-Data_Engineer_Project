@@ -1,7 +1,6 @@
 import os
 import pandas as pd
 import time
-from datetime import datetime
 from scripts.conn.db_connection import get_connection
 
 # ============================================================
@@ -14,8 +13,7 @@ FOLDER_DATASETS = os.path.join(AIRFLOW_HOME, "dags", "datasets")
 # Utility for timing
 # ============================================================
 def log_time(message: str):
-    ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print(f"[{ts}] {message}")
+    print(message)
 
 def measure_time(func):
     def wrapper(*args, **kwargs):
@@ -90,7 +88,7 @@ def load_to_bronze(df: pd.DataFrame, table_name: str):
             cursor.executemany(sql, tuples)
 
         conn.commit()
-        print(f"[OK] Loaded {len(df)} rows into {table_name}")
+        print(f"[OK] Loaded {table_name}: {len(df)} rows")
 
     except Exception as e:
         raise RuntimeError(f"Gagal insert ke {table_name}: {str(e)}")

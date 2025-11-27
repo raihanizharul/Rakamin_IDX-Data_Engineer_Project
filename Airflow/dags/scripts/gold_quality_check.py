@@ -1,10 +1,9 @@
 import pandas as pd
-from datetime import datetime
 from scripts.conn.db_connection import get_connection
 
 
 def log(msg):
-    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {msg}")
+    print(msg)
 
 
 # ================================================================
