@@ -91,7 +91,7 @@ def run_data_quality():
     dq_results["CustomerClean"] = dq_check(
         table="silver.CustomerClean",
         pk_col="CustomerID",
-        required_cols=["CustomerID", "CustomerName", "CityID"],
+        required_cols=["CustomerID", "CustomerName", "Address", "CityID", "Age", "Gender", "Email"],
         uppercase_cols=["CustomerName", "Address", "Gender"]
     )
 
@@ -112,21 +112,21 @@ def run_data_quality():
     dq_results["TransactionClean"] = dq_check(
         table="silver.TransactionClean",
         pk_col="TransactionID",
-        required_cols=["TransactionID", "AccountID", "TransactionDate", "Amount"],
+        required_cols=["TransactionID", "AccountID", "TransactionDate", "Amount", "TransactionType", "BranchID"],
         uppercase_cols=[]
     )
 
     dq_results["AccountClean"] = dq_check(
         table="silver.AccountClean",
         pk_col="AccountID",
-        required_cols=["AccountID", "CustomerID", "AccountType", "Balance"],
+        required_cols=["AccountID", "CustomerID", "AccountType", "Balance", "DateOpened", "Status"],
         uppercase_cols=[]
     )
 
     dq_results["BranchClean"] = dq_check(
         table="silver.BranchClean",
         pk_col="BranchID",
-        required_cols=["BranchID", "BranchName"],
+        required_cols=["BranchID", "BranchName", "BranchLocation"],
         uppercase_cols=[]
     )
 
