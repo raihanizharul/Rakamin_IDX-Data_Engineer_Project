@@ -5,6 +5,7 @@ from scripts.ingest_to_bronze import run_all_loads_bronze
 from scripts.bronze_to_silver import run_all_loads_silver
 from scripts.silver_quality_check import run_data_quality
 from scripts.silver_to_gold import run_all_loads_gold
+from scripts.gold_quality_check import run_data_quality_gold
 
 with DAG(
     dag_id="etl_dwh_pipeline",
@@ -24,7 +25,7 @@ with DAG(
         python_callable=run_all_loads_silver
     ),
     
-    quality_check = PythonOperator(
+    quality_check_silver = PythonOperator(
         task_id="silver_data_quality_check",
         python_callable=run_data_quality
     )
@@ -33,5 +34,10 @@ with DAG(
         task_id="load_gold_data",
         python_callable=run_all_loads_gold
     )
+    
+    quality_check_gold = PythonOperator(
+        task_id="gold_data_quality_check",
+        python_callable=run_data_quality_gold
+    )
 
-    load_bronze >> load_silver >> quality_check >> load_gold
+    load_bronze >> load_silver >> quality_check_silver >> load_gold >> quality_check_gold
