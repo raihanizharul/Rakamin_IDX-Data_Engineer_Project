@@ -80,6 +80,9 @@ def load_dim_branch():
 
         conn.commit()
         print(f"[OK] DimBranch loaded: {len(df_clean)} rows")
+    
+    except Exception as e:
+        raise RuntimeError(f"Error in load_dim_branch: {str(e)}")
 
     finally:
         conn.close()
@@ -133,6 +136,9 @@ def load_dim_customer():
 
         conn.commit()
         print(f"[OK] DimCustomer loaded: {len(df_join)} rows")
+    
+    except Exception as e:
+        raise RuntimeError(f"Error in load_dim_customer: {str(e)}")
 
     finally:
         conn.close()
@@ -190,6 +196,9 @@ def load_dim_account():
         conn.commit()
         print(f"[OK] DimAccount loaded: {len(df_clean)} rows")
 
+    except Exception as e:
+        raise RuntimeError(f"Error in load_dim_account: {str(e)}")
+
     finally:
         conn.close()
 
@@ -229,6 +238,9 @@ def load_fact_transaction():
         conn.commit()
 
         print(f"[OK] FactTransaction loaded: {len(df_join)} rows")
+        
+    except Exception as e:
+        raise RuntimeError(f"Error in load_fact_transaction: {str(e)}")
 
     finally:
         conn.close()
