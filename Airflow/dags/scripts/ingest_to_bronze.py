@@ -24,24 +24,24 @@ def measure_time(func):
         if func.__name__ == "load_from_sql_source":
             source = args[0]
             dwh = args[1]
-            label = f" (source={source} → dwh={dwh})"
+            label = f"source={source} → dwh={dwh}"
 
         elif func.__name__ == "load_csv_transaction":
             file = os.path.basename(args[0])
             dwh = "bronze.transaction_csv_raw"
-            label = f" (source={file} → dwh={dwh})"
+            label = f"source={file} → dwh={dwh}"
 
         elif func.__name__ == "load_excel_transaction":
             file = os.path.basename(args[0])
             dwh = "bronze.transaction_excel_raw"
-            label = f" (source={file} → dwh={dwh})"
+            label = f"source={file} → dwh={dwh}"
 
         elif func.__name__ == "truncate_table":
             table = args[0]
-            label = f" (table={table})"
+            label = f"table={table}"
 
 
-        log_time(f"START: {func.__name__}{label}")
+        log_time(f"START: {label}")
 
         try:
             return func(*args, **kwargs)
@@ -50,7 +50,7 @@ def measure_time(func):
             raise
         finally:
             duration = round(time.time() - start, 2)
-            log_time(f"END: {func.__name__}{label} | Duration: {duration} seconds")
+            log_time(f"END: Duration: {duration} seconds")
 
     return wrapper
 
