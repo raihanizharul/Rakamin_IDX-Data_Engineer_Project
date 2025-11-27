@@ -389,7 +389,7 @@ def load_clean_state():
 # 8. The main function
 # ============================================================
 @measure_time
-def run_all_loads(**context):
+def run_all_loads_silver(**context):
     log_time("=== START LOADING INTO BRONZE ===")
 
     try:

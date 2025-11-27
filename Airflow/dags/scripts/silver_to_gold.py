@@ -237,7 +237,7 @@ def load_fact_transaction():
 # MAIN RUN ALL
 # ============================================================
 @measure_time
-def run_all_loads(**context):
+def run_all_loads_gold(**context):
     log_time("=== START GOLD LOAD ===")
 
     try:

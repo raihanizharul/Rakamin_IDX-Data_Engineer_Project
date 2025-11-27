@@ -161,7 +161,7 @@ def load_from_sql_source(source_table: str, bronze_table: str):
 # 7. The main function
 # ============================================================
 @measure_time
-def run_all_loads(**context):
+def run_all_loads_bronze(**context):
     log_time("=== START LOADING INTO BRONZE ===")
 
     try:
