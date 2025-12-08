@@ -12,13 +12,10 @@ This project focuses on building a robust Data Warehouse solution using the Meda
 
 2. **Silver Layer**: This layer includes data cleansing and data enrichment processes to prepare data for analysis. Data cleansing activities typically involve removing duplicates, standardizing column values such as converting them to uppercase, and applying sorting rules to organize the dataset. Data enrichment focuses on combining and integrating related transactional data into a unified and well-structured dataset, enabling more meaningful analysis in the subsequent layer.
 
-3. **Gold Layer**: Houses business-ready data modeled into a star schema required for reporting and analytics. 
+3. **Gold Layer**: Houses business-ready data modeled into a [Star Schema](docs/ERD_StarSchema.png) required for reporting and analytics. 
 
 ## 🛠️ Data Flow
 ![Data Flow](docs/data_flow.png)
-
-## 🛠️ ERD Star Schema Gold Layer
-![ERD Star Schema Gold Layer](docs/ERD_StarSchema.png)
 
 ---
 
