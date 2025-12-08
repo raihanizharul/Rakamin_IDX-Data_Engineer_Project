@@ -64,4 +64,4 @@ cd data-warehouse-project/Airflow
 astro dev start
 ```
 ---
-View project presentation click [here](https://youtu.be/iGD4w4DHFJA?si=VAdT7p3puASaJNST)
+▶️ View project presentation click [here](https://youtu.be/iGD4w4DHFJA?si=VAdT7p3puASaJNST)
