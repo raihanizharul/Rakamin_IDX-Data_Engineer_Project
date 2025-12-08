@@ -30,9 +30,38 @@ data-warehouse-project/
 │
 ├── scripts/                            # SQL scripts for ETL and transformations
 │   ├── ddl/                            # Scripts for init data warehouse and layers
-│   ├── store_procedure                 # Scripts for store procedure
+│   ├── store_procedure/                # Scripts for store procedure
 │
 ├── README.md                           # Project overview and instructions
 ```
 ---
+##  🚀 How to Run the Project
 
+To run this project locally, follow the steps below:
+
+### 1️⃣ Install Required Tools
+
+Make sure the following dependencies are installed on your machine:
+⚈ Docker
+⚈ Astro CLI for running Apache Airflow
+⚈ SQL Server Express
+⚈ SQL Server Management Studio (SSMS) for managing the database
+
+---
+### 2️⃣ Restore the Sample Database
+⚈ Open SSMS and connect to your local SQL Server Express instance.
+⚈ Right-click on Databases → Restore Database
+⚈ Select the backup file located in datasets/sample.bak
+
+---
+3️⃣ Start the Airflow Environment
+
+⚈ Open a terminal or command prompt
+⚈ Navigate to the Airflow directory of the project:
+```
+cd data-warehouse-project/Airflow
+```
+⚈ Start the local Airflow environment using the Astro CLI:
+```
+astro dev start
+```
