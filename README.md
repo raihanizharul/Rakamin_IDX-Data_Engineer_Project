@@ -18,7 +18,7 @@ This project focuses on building a robust Data Warehouse solution using the Meda
 ![Data Flow](docs/data_flow.png)
 
 ---
-🗂️ Project Structure
+## 🗂️ Project Structure
 ```
 data-warehouse-project/
 │
