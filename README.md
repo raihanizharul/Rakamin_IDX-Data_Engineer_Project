@@ -18,4 +18,25 @@ This project focuses on building a robust Data Warehouse solution using the Meda
 ![Data Flow](docs/data_flow.png)
 
 ---
+🗂️ Project Structure
+```
+data-warehouse-project/
+│
+├── Airflow                             # Run project in this folder
+│
+├── datasets/                           # Raw datasets used for the project (Excel, CSV, Database (Restore .bak))
+│
+├── docs/                               # Project documentation and architecture details
+│
+├── scripts/                            # SQL scripts for ETL and transformations
+│   ├── bronze/                         # Scripts for extracting and loading raw data
+│   ├── silver/                         # Scripts for cleaning and transforming data
+│   ├── gold/                           # Scripts for creating analytical models
+│
+├── tests/                              # Test scripts and quality files
+│
+├── README.md                           # Project overview and instructions
+└── requirements.txt                    # Dependencies and requirements for the project
+```
+---
 
