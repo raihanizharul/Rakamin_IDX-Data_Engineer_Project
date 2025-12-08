@@ -29,14 +29,10 @@ data-warehouse-project/
 ├── docs/                               # Project documentation and architecture details
 │
 ├── scripts/                            # SQL scripts for ETL and transformations
-│   ├── bronze/                         # Scripts for extracting and loading raw data
-│   ├── silver/                         # Scripts for cleaning and transforming data
-│   ├── gold/                           # Scripts for creating analytical models
-│
-├── tests/                              # Test scripts and quality files
+│   ├── ddl/                            # Scripts for init data warehouse and layers
+│   ├── store_procedure                 # Scripts for store procedure
 │
 ├── README.md                           # Project overview and instructions
-└── requirements.txt                    # Dependencies and requirements for the project
 ```
 ---
 
