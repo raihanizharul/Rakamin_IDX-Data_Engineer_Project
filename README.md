@@ -47,14 +47,12 @@ Make sure the following dependencies are installed on your machine:
 ⚈ SQL Server Express
 ⚈ SQL Server Management Studio (SSMS) for managing the database
 
----
 ### 2️⃣ Restore the Sample Database
 ⚈ Open SSMS and connect to your local SQL Server Express instance.
 ⚈ Right-click on Databases → Restore Database
 ⚈ Select the backup file located in datasets/sample.bak
 
----
-3️⃣ Start the Airflow Environment
+### 3️⃣ Start the Airflow Environment
 
 ⚈ Open a terminal or command prompt
 ⚈ Navigate to the Airflow directory of the project:
@@ -65,3 +63,5 @@ cd data-warehouse-project/Airflow
 ```
 astro dev start
 ```
+---
+View project presentation click [here](https://youtu.be/iGD4w4DHFJA?si=VAdT7p3puASaJNST)
